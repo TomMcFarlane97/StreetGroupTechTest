@@ -3,16 +3,24 @@
     "description": "Tom McFarlane's Street Group Tech Test",
     "type": "project",
     "require": {
+        "php": "7.4.*",
         "slim/slim": "^4.8",
         "phpunit/phpunit": "^9.5",
         "guzzlehttp/psr7": "^2.0",
         "phpstan/phpstan": "^0.12.92",
         "squizlabs/php_codesniffer": "^3.6",
-        "php-di/php-di": "^6.3"
+        "php-di/php-di": "^6.3",
+        "ext-json": "*",
+        "http-interop/http-factory-guzzle": "^1.1"
     },
     "autoload": {
         "psr-4": {
-            "Tommc\\StreetGroupTechTest\\": "src/"
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -20,5 +28,16 @@
             "name": "Tom McFarlane",
             "email": "tom.mcfarlane97@gmail.com"
         }
-    ]
+    ],
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "build": ["@test", "@phpcs"],
+        "phpcs": "phpcs src",
+        "phpstan": "./vendor/bin/phpstan analyze src/ --level=7"
+    }
 }
