@@ -24,4 +24,21 @@ class UploadHomeOwnerResult
     {
         return $this->users;
     }
+
+    /**
+     * @return array<int, array<string, string|null>>
+     */
+    public function serialise(): array
+    {
+        $userData = [];
+        foreach ($this->getUsers() as $user) {
+            $userData[] = [
+              'title' => $user->getTitle(),
+              'first_name' => $user->getFirstName(),
+              'initial' => $user->getInitial(),
+              'last_name' => $user->getLastName(),
+            ];
+        }
+        return $userData;
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Processes;
 
 use App\Entities\User;
 use App\Exceptions\HomeOwnerProcessException;
+use App\Processes\Results\UploadHomeOwnerResult;
 use App\Services\HomeOwnerService;
 
 class UploadHomeOwnerProcess
@@ -22,18 +23,18 @@ class UploadHomeOwnerProcess
 
     /**
      * @param string[] $homeOwnerData
-     * @return User[]
+     * @return UploadHomeOwnerResult
      * @throws \Exception
      */
-    public function process(array $homeOwnerData): array
+    public function process(array $homeOwnerData): UploadHomeOwnerResult
     {
-        $users = [];
+        $uploadHomeOwnerResult = new UploadHomeOwnerResult();
         try {
             $this->homeOwnerService->beginTransaction();
             foreach ($homeOwnerData as $homeOwner) {
-                if ($this->homeOwnerService->canStoreHomeOwner($homeOwner) === false) {
+                if ($this->homeOwnerService->canStoreHomeOwner($homeOwner) === true) {
                     try {
-                        $users[] = $this->homeOwnerService->storeHomeOwner($homeOwner);
+                        $this->homeOwnerService->storeHomeOwner($homeOwner, $uploadHomeOwnerResult);
                     } catch (HomeOwnerProcessException $exception) {
                         // log exception
                     }
@@ -45,6 +46,7 @@ class UploadHomeOwnerProcess
             $this->homeOwnerService->rollbackTransaction();
             throw $exception;
         }
-        return $users;
+
+        return $uploadHomeOwnerResult;
     }
 }

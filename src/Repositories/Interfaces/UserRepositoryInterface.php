@@ -4,24 +4,8 @@ namespace App\Repositories\Interfaces;
 
 use App\Entities\User;
 
-interface UserRepositoryInterface
+interface UserRepositoryInterface extends TransactionInterface
 {
-
-    /**
-     * @return void
-     */
-    public function beginTransaction(): void;
-
-    /**
-     * @return void
-     */
-    public function commitTransaction(): void;
-
-    /**
-     * @return void
-     */
-    public function rollbackTransaction(): void;
-
     /**
      * @param User $user
      * @return void

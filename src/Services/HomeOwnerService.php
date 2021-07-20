@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entities\User;
 use App\Exceptions\HomeOwnerProcessException;
+use App\Processes\Results\UploadHomeOwnerResult;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 
 class HomeOwnerService
@@ -18,6 +19,7 @@ class HomeOwnerService
     ];
 
     private const SPLIT_HOME_OWNER = '/ (&|and) /';
+    private const VALID_CHARACTERS = '/[^a-zA-Z -^&]+(-[a-z A-Z]+)?$/'; // regex is not one of strong points.
 
     /** @var UserRepositoryInterface */
     private $userRepository;
@@ -41,17 +43,13 @@ class HomeOwnerService
             return false;
         }
 
-        $homeOwner = trim($homeOwner);
-        if (false === $this->isValidName($homeOwner)) {
-            return false;
-        }
-
+        $homeOwner = trim(preg_replace(self::VALID_CHARACTERS, '', $homeOwner));
         $homeOwners = preg_split(self::SPLIT_HOME_OWNER, $homeOwner);
         if (empty($homeOwners)) {
             return false;
         }
         foreach ($homeOwners as $homeOwnerSplit) {
-            if ($this->homeOwnerHasTitle($homeOwnerSplit)) {
+            if (false === $this->homeOwnerHasTitle($homeOwnerSplit)) {
                 return false;
             }
             $doesHomeOwnerInputHaveASecondName = $this->homeOwnerHasLastName($homeOwnerSplit) ||
@@ -66,13 +64,12 @@ class HomeOwnerService
 
     /**
      * @param string $homeOwner
-     * @return User
+     * @param UploadHomeOwnerResult $uploadHomeOwnerResult
      * @throws HomeOwnerProcessException
      */
-    public function storeHomeOwner(string $homeOwner): User
+    public function storeHomeOwner(string $homeOwner, UploadHomeOwnerResult $uploadHomeOwnerResult): void
     {
-        $user = new User();
-        $homeOwner = trim($homeOwner);
+        $homeOwner = trim(preg_replace(self::VALID_CHARACTERS, '', $homeOwner));
         $homeOwners = preg_split(self::SPLIT_HOME_OWNER, $homeOwner);
         if (empty($homeOwners)) {
             throw new HomeOwnerProcessException('Unable to save Home Owner');
@@ -80,15 +77,15 @@ class HomeOwnerService
         foreach ($homeOwners as $homeOwnerSplit) {
             $user = new User();
             $user->setTitle($this->getHomeOwnersTitle($homeOwnerSplit));
-            $homeOwnerSplit = str_replace($user->getTitle(), '', $homeOwnerSplit);
+            $homeOwnerSplit = trim(str_replace($user->getTitle(), '', $homeOwnerSplit));
             if (!empty($homeOwnerSplit)) {
                 $user->setFirstName($this->getHomeOwnersFirstName($homeOwnerSplit));
                 $user->setInitial($this->getHomeOwnersInitial($homeOwnerSplit));
             }
             $user->setLastName($this->getHomeOwnersLastName($homeOwnerSplit, $homeOwner));
             $this->userRepository->save($user);
+            $uploadHomeOwnerResult->addUser($user);
         }
-        return $user;
     }
 
     /**
@@ -116,15 +113,6 @@ class HomeOwnerService
     public function rollbackTransaction(): void
     {
         $this->userRepository->rollbackTransaction();
-    }
-
-    /**
-     * @param string $homeOwner
-     * @return bool
-     */
-    private function isValidName(string $homeOwner): bool
-    {
-        return (bool) preg_match('~[0-9]+~', $homeOwner);
     }
 
     /**
@@ -174,13 +162,15 @@ class HomeOwnerService
      */
     private function getHomeOwnersFirstName(string $homeOwner): ?string
     {
-        $homeOwnerValues = explode($homeOwner, ' ');
+        $homeOwnerValues = explode(' ', $homeOwner);
         if (empty($homeOwnerValues)) {
             return null;
         }
+        // reverse the array and get the first name
+        $homeOwnerValues = array_reverse($homeOwnerValues);
         $homeOwnerFirstName = array_pop($homeOwnerValues);
         $homeOwnerFirstName = trim($homeOwnerFirstName, '.');
-        $hasFirstName = !empty($homeOwnerFirstName) || strlen($homeOwnerFirstName) > 1;
+        $hasFirstName = !empty($homeOwnerFirstName) && strlen($homeOwnerFirstName) > 1;
         return $hasFirstName ? $homeOwnerFirstName : null;
     }
 
@@ -190,14 +180,15 @@ class HomeOwnerService
      */
     private function getHomeOwnersInitial(string $homeOwner): ?string
     {
-        $homeOwnerValues = explode($homeOwner, ' ');
+        $homeOwnerValues = explode(' ', $homeOwner);
         if (empty($homeOwnerValues)) {
             return null;
         }
+        $homeOwnerValues = array_reverse($homeOwnerValues);
         $homeOwnerInitial = array_pop($homeOwnerValues);
         $homeOwnerInitial = trim($homeOwnerInitial, '.');
-        $hasFirstName = !empty($homeOwnerInitial) && strlen($homeOwnerInitial) === 1;
-        return $hasFirstName ? $homeOwnerInitial : null;
+        $hasInitial = !empty($homeOwnerInitial) && strlen($homeOwnerInitial) === 1;
+        return $hasInitial ? $homeOwnerInitial : null;
     }
 
     /**
@@ -209,23 +200,30 @@ class HomeOwnerService
     private function getHomeOwnersLastName(?string $homeOwner, string $homeOwners): string
     {
         if (empty($homeOwner)) {
-            $homeOwnersDetails = explode(' ', $homeOwners);
-            $homeOwnersLastName = trim(end($homeOwnersDetails));
+            $homeOwnersLastName = $this->getLastName($homeOwners);
             if (!empty($homeOwnersLastName)) {
                 return $homeOwnersLastName;
             }
             throw new HomeOwnerProcessException('Unable to add Last Name for HomeOwner');
         }
-        $homeOwnerDetails = explode(' ', $homeOwner);
-        $homeOwnerLastName = trim(end($homeOwnerDetails));
+        $homeOwnerLastName = $this->getLastName($homeOwner);
         if (!empty($homeOwnerLastName)) {
             return $homeOwnerLastName;
         }
-        $homeOwnersDetails = explode(' ', $homeOwners);
-        $homeOwnersLastName = trim(end($homeOwnersDetails));
+        $homeOwnersLastName = $this->getLastName($homeOwners);
         if (!empty($homeOwnersLastName)) {
             return $homeOwnersLastName;
         }
         throw new HomeOwnerProcessException('Unable to add Last Name for HomeOwner');
+    }
+
+    /**
+     * @param string $homeOwner
+     * @return string
+     */
+    private function getLastName(string $homeOwner): string
+    {
+        $homeOwnersDetails = explode(' ', $homeOwner);
+        return trim(end($homeOwnersDetails));
     }
 }

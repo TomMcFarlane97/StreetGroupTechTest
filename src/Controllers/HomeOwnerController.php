@@ -32,7 +32,7 @@ class HomeOwnerController extends AbstractController
         try {
             $this->validateRequest($request);
             $homeOwnerData = $this->getCsv($request);
-            $homeOwners = $this->uploadHomeOwnerProcess->process($homeOwnerData);
+            $uploadHomeOwnerResult = $this->uploadHomeOwnerProcess->process($homeOwnerData);
         } catch (RequestException $exception) {
             $response
                 ->getBody()->write(json_encode(['message' => $exception->getMessage()], JSON_THROW_ON_ERROR));
@@ -47,8 +47,10 @@ class HomeOwnerController extends AbstractController
                 ->withHeader('Content-Type', self::JSON)
                 ->withStatus(self::INTERNAL_SERVER_ERROR);
         }
-
-        $response->getBody()->write(json_encode(['message' => 'success', json_encode($homeOwners)], JSON_THROW_ON_ERROR));
+        $response->getBody()->write(json_encode(
+            ['users' => $uploadHomeOwnerResult->serialise()],
+            JSON_THROW_ON_ERROR
+        ));
         return $response
             ->withHeader('Content-Type', self::JSON)
             ->withStatus(self::CREATED);

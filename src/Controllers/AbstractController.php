@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Exceptions\RequestException;
+use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Http\Message\RequestInterface;
 
 abstract class AbstractController
@@ -14,14 +15,16 @@ abstract class AbstractController
     protected const INTERNAL_SERVER_ERROR = 500;
 
     /**
-     * Validates is JSON request
+     * Validates is CSV request and Accepts JSON
      * @param RequestInterface $request
      * @throws RequestException
      */
     protected function validateRequest(RequestInterface $request): void
     {
         $contentType = $request->getHeader('Content-type');
-        if (!empty($contentType[0]) && false === strpos($contentType[0], self::CSV)
+        if (
+            !empty($contentType[0])
+            && false === strpos($contentType[0], self::CSV)
             && !$request->getBody()->eof()
         ) {
             throw new RequestException('Must be type CSV');
@@ -40,8 +43,6 @@ abstract class AbstractController
      */
     protected function getCsv(RequestInterface $request): array
     {
-        $i = 0;
-        $data = '';
         if ($request->getBody()->isReadable() === false) {
             throw new RequestException('Unable to read CSV file');
         }
