@@ -1,7 +1,7 @@
 # StreetGroupTechTest
 Endpoints
 ## Routes
-### /api/consignment
+### /api/home-owners
 - Valid methods POST
 - Required only a CSV to be sent in the request
 
