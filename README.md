@@ -1,9 +1,7 @@
 # StreetGroupTechTest
 Street Group Tech Test
 
-Please note, this is an idea of how I would code. It is more psuedo coding and an idea as to how I like to structure my code.
-Regex is not my strongest point.
-
+Please note, this is an idea of how I would code. It is more psuedo code and an idea as to how I like to structure my code.
 Requirements to run this tech test
 
 - php 7.4
@@ -22,10 +20,10 @@ Tom McFarlane's Tech Test is running off the local php server. To run the server
 All the requests come through public/index.php
 
 ## Useful commands
-- `composer install` - install composer
-- `composer phpstan` - run PHP Stan (Static Analyser tool)
-- `composer phpcs` - Run PHP Coding Standard and ensure they are being met
-- `php ./vendor/bin/phpunit tests/unit` - Run Unit tests
+- `composer install` - install composer.
+- `composer phpstan` - run PHP Stan (Static Analyser tool.)
+- `composer phpcs` - Run PHP Coding Standard and ensure they are being met. It is currently set to PSR12 standards.
+- `php ./vendor/bin/phpunit tests/unit` - Run Unit tests.
 
 ### General Comments 
 
@@ -36,21 +34,22 @@ Note - I would normally use Swagger for this.
 
 ### Just to give an overview
 
-- public - anything that is public facing
-- src - all logic and code belongs here
-- tests - all tests are here
-- vendor - all composer and third party dependencies
+- public - anything that is public facing.
+- src - all logic and code belongs here.
+- tests - all tests are here.
+- vendor - all composer and third party dependencies.
 
-#####Inside src directory
+##### Inside src directory
 
-- Controllers - all the endpoints are configured to accept data from a request and to then return a response
-- Entities - map of the database tables
-- Exceptions - custom exceptions to give a better knowledge of what is going
-- Processes - Where a "process" should have it's logic and should always return a form of a result. 
-Makes the code more reusable if it was to be used through the CLI
-- Repositories - The section that communicates with the Database
-- Repositories/Interfaces - Where all Repository interfaces are
-- Services - Where all business logic is handled
+- Controllers - all the endpoints are configured to accept data from a request and to then return a response.
+- Entities - map of the database tables.
+- Exceptions - custom exceptions to give a better knowledge of what is going.
+- Processes - Where a "process" should have the logic and should always return a form of a result object. 
+  This makes it interchangeable whether it is executed from an endpoint or through the CLI. 
+Makes the code more reusable if it was to be used through the CLI.
+- Repositories - The section that communicates with the Database.
+- Repositories/Interfaces - Where all Repository interfaces are.
+- Services - Where all business logic is handled.
 
 Please note for the API side, I would have added in bearer token validation, ensuring it came from the right IP address.
 The same for the unit tests. I only wrote tests for the Service just to demonstrate the point that I can do it.

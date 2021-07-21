@@ -5,16 +5,16 @@ namespace App\Entities;
 class User
 {
     /** @var string */
-    private $title;
+    private string $title;
 
     /** @var null|string */
-    private $initial = null;
+    private ?string $initial = null;
 
     /** @var null|string */
-    private $firstName = null;
+    private ?string $firstName = null;
 
     /** @var string */
-    private $lastName;
+    private string $lastName;
 
     /**
      * @return string

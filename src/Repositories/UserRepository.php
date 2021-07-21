@@ -8,7 +8,7 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 class UserRepository implements UserRepositoryInterface
 {
     /** @var User[] */
-    private $users = [];
+    private array $users = [];
 
     public function save(User $user): void
     {

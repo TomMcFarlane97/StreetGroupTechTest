@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 class HomeOwnerController extends AbstractController
 {
     /** @var UploadHomeOwnerProcess */
-    private $uploadHomeOwnerProcess;
+    private UploadHomeOwnerProcess $uploadHomeOwnerProcess;
 
     /**
      * HomeOwnerController constructor.

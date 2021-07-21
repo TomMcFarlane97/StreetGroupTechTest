@@ -19,10 +19,11 @@ class HomeOwnerService
     ];
 
     private const SPLIT_HOME_OWNER = '/ (&|and) /';
-    private const VALID_CHARACTERS = '/[^a-zA-Z -^&]+(-[a-z A-Z]+)?$/'; // regex is not one of strong points.
+    private const VALID_CHARACTERS = '/[^a-zA-Z -^&]+(-[a-z A-Z]+)?$/';
+    private const VALID_NAME_CHARACTERS = '/[^a-zA-Z]+(-[a-z A-Z]+)?$/';
 
     /** @var UserRepositoryInterface */
-    private $userRepository;
+    private UserRepositoryInterface $userRepository;
 
     /**
      * HomeOwnerService constructor.
@@ -224,6 +225,6 @@ class HomeOwnerService
     private function getLastName(string $homeOwner): string
     {
         $homeOwnersDetails = explode(' ', $homeOwner);
-        return trim(end($homeOwnersDetails));
+        return preg_replace(self::VALID_NAME_CHARACTERS, '', trim(end($homeOwnersDetails)));
     }
 }

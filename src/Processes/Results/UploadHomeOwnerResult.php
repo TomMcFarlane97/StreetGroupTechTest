@@ -7,7 +7,7 @@ use App\Entities\User;
 class UploadHomeOwnerResult
 {
     /** @var User[] */
-    private $users = [];
+    private array $users = [];
 
     /**
      * @param User $user

@@ -10,7 +10,7 @@ use App\Services\HomeOwnerService;
 class UploadHomeOwnerProcess
 {
     /** @var HomeOwnerService  */
-    private $homeOwnerService;
+    private HomeOwnerService $homeOwnerService;
 
     /**
      * UploadHomeOwnerProcess constructor.

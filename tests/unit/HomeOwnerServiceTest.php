@@ -6,15 +6,16 @@ use App\Exceptions\HomeOwnerProcessException;
 use App\Processes\Results\UploadHomeOwnerResult;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\HomeOwnerService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class HomeOwnerServiceTest extends TestCase
 {
-    /** @var UserRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var UserRepositoryInterface|MockObject */
     private $userRepository;
 
     /** @var HomeOwnerService */
-    private $homeOwnerService;
+    private HomeOwnerService $homeOwnerService;
 
     /**
      * Setup
@@ -25,9 +26,7 @@ class HomeOwnerServiceTest extends TestCase
             ->getMockBuilder(UserRepositoryInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->homeOwnerService = new HomeOwnerService(
-            $this->userRepository
-        );
+        $this->homeOwnerService = new HomeOwnerService($this->userRepository);
     }
 
     /**

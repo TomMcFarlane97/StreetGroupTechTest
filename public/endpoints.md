@@ -3,7 +3,7 @@ Endpoints
 ## Routes
 ### /api/home-owners
 - Valid methods POST
-- Required only a CSV to be sent in the request
+- Required only a CSV to be sent in the request with the key of `homeowners`
 
 #### Headers that must be set
 
